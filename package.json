@@ -1,0 +1,31 @@
+{
+  "name": "termrender",
+  "version": "0.2.0",
+  "description": "Render terminal screenshots that replicate your real terminal — PTY exec, real shell prompt, live iTerm2 theme",
+  "type": "module",
+  "bin": {
+    "termrender": "./bin/termrender.ts"
+  },
+  "scripts": {
+    "build": "bun build ./bin/termrender.ts --outdir ./dist --target bun",
+    "start": "bun run ./bin/termrender.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@termless/core": "0.7.0",
+    "@termless/xtermjs": "0.4.0",
+    "commander": "^13.1.0",
+    "fast-xml-parser": "^5.2.2",
+    "yaml": "^2.7.1",
+    "zod": "^4.4.3"
+  },
+  "optionalDependencies": {
+    "@resvg/resvg-js": "^2.6.2"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.9"
+  },
+  "patchedDependencies": {
+    "@termless/core@0.7.0": "patches/@termless%2Fcore@0.7.0.patch"
+  }
+}

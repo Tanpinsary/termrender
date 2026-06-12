@@ -1,0 +1,13 @@
+diff --git a/dist/svg-GiNzFr_X.mjs b/dist/svg-GiNzFr_X.mjs
+index 89002129e494916ea2aee0ec261ddd08c4da6a85..03591f5f034b36f39e4404ec925919b60f9bcdf0 100644
+--- a/dist/svg-GiNzFr_X.mjs
++++ b/dist/svg-GiNzFr_X.mjs
+@@ -319,7 +319,7 @@ function renderTextRows(lines, opts) {
+ 				continue;
+ 			}
+ 			if (!textOpen) {
+-				parts.push(`<text x="0" y="${y}" font-family="${escapeXml(fontFamily)}" font-size="${fontSize}" fill="${themeFg}">`);
++				parts.push(`<text xml:space="preserve" x="0" y="${y}" font-family="${escapeXml(fontFamily)}" font-size="${fontSize}" fill="${themeFg}">`);
+ 				textOpen = true;
+ 			}
+ 			parts.push(spanToTspan(span, cellWidth, themeFg));
