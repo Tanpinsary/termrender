@@ -114,11 +114,46 @@ termrender exec --prompt zsh --theme auto --window-bar rings -o demo-omz.png -- 
 
 ## MCP server
 
-`bin/termrender-mcp.ts` exposes termrender to agents as MCP tools — `render_command` and `render_text` — with the rendered PNG returned inline as an image content block, so the agent sees the result immediately.
+`bin/termrender-mcp.ts` exposes termrender to agents as two MCP tools — `render_command` and `render_text` — with the rendered PNG returned inline as an image content block, so the agent sees the result immediately and can self-correct (wrong theme, misaligned columns, …) in the same loop.
+
+### Registration
+
+**Claude Code:**
 
 ```bash
-claude mcp add --scope user termrender -- bun run /path/to/termrender/bin/termrender-mcp.ts
+claude mcp add --scope user --transport stdio termrender -- bun run /path/to/termrender/bin/termrender-mcp.ts
 ```
+
+**Codex (OpenAI):**
+
+```bash
+codex mcp add termrender -- bun run /path/to/termrender/bin/termrender-mcp.ts
+```
+
+Or in `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.termrender]
+enabled = true
+transport = { type = "stdio", command = "bun", args = ["run", "/path/to/termrender/bin/termrender-mcp.ts"] }
+```
+
+**OpenCode:**
+
+Add to `opencode.json` (project root) or `~/.config/opencode/opencode.json`:
+
+```jsonc
+{
+  "mcp": {
+    "termrender": {
+      "type": "local",
+      "command": ["bun", "run", "bin/termrender-mcp.ts"]
+    }
+  }
+}
+```
+
+> **Note**: OpenCode uses `"type": "local"` (not `"stdio"`) and `"command"` as an **array** of strings — this avoids shell injection.
 
 ## How it works
 

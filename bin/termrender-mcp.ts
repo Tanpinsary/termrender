@@ -7,8 +7,10 @@
  * screenshot immediately — no follow-up file read, and it can self-correct
  * (wrong theme, clipped output, …) in the same loop.
  *
- * Register (Claude Code):
- *   claude mcp add --scope user termrender -- bun run /path/to/bin/termrender-mcp.ts
+ * Register:
+ *   Claude Code  claude mcp add --scope user --transport stdio termrender -- bun run /path/to/bin/termrender-mcp.ts
+ *   Codex         codex mcp add termrender -- bun run /path/to/bin/termrender-mcp.ts
+ *   OpenCode      opencode.json: { "mcp": { "termrender": { "type": "local", "command": ["bun", "run", "bin/termrender-mcp.ts"] } } }
  */
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
