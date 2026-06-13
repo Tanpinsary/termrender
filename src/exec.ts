@@ -109,8 +109,13 @@ export async function execAndRender(
   await term.waitForStable(80, 2000).catch(() => {})
 
   // 3. The next prompt, closing the frame like a real session.
-  if (prompt && (options.trailingPrompt ?? true)) {
+  const showTrailingPrompt = prompt && (options.trailingPrompt ?? true)
+  if (showTrailingPrompt) {
     term.feed(toCrlf(prompt))
+  } else {
+    // When trailing prompt is suppressed, hide the cursor so the image
+    // does not show a "type here" block with no prompt context.
+    term.feed("\x1b[?25l")
   }
 
   // 4. Size the final image to the content.
