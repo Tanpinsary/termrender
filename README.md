@@ -4,13 +4,11 @@ Terminal screenshots that **replicate your real terminal** — your shell prompt
 
 ![Basic demo](assets/demo-basic.png)
 
-Most terminal-to-image tools render text you hand them, with a generic theme and no prompt. termrender instead *runs the command in a real PTY* and *asks your own shell to render its prompt*, so the screenshot looks like what you'd actually see in your terminal:
-
 ```bash
-termrender exec --theme auto -o demo.png -- git status -sb
+termrender exec --theme auto --window-bar rings -o demo-basic.png -- echo "Hello, termrender!"
 ```
 
-…produces a PNG with your real prompt above the command, the command's genuine colors below it (programs detect the PTY and colorize), and your live iTerm2 palette and font around it.
+Most terminal-to-image tools render text you hand them, with a generic theme and no prompt. termrender instead *runs the command in a real PTY* and *asks your own shell to render its prompt*, so the screenshot looks like what you'd actually see in your terminal. The image above was generated with a single command — your real fish prompt, iTerm2 colors, and the command's output, all captured automatically.
 
 Built on [termless](https://github.com/beorn/termless) for headless terminal emulation and PNG rendering.
 
@@ -80,17 +78,39 @@ termrender uses fish shell's token-level algorithm to color commands, options, p
 
 ![Syntax highlighting](assets/demo-highlight.png)
 
+```bash
+termrender exec --theme auto --window-bar rings -o demo-highlight.png -- git log --oneline -5
+```
+
 ### 🎨 System-aware themes
 
 Without any `--theme` flag, termrender automatically picks dark or light based on your macOS system appearance. Here it shows a directory listing with your live iTerm2 palette:
 
 ![iTerm2 live theme](assets/demo-theme.png)
 
+```bash
+termrender exec --theme auto --window-bar rings -o demo-theme.png -- ls -la
+```
+
 ### 🪟 Window bar styles
 
 Choose `rings` (macOS traffic lights), `colorful` (solid dots), or `none`:
 
 ![Window bars](assets/demo-windowbar.png)
+
+```bash
+termrender exec --theme auto --window-bar colorful -o demo-windowbar.png -- echo "termrender"
+```
+
+### 🐚 Prompt styles
+
+Use `--prompt fish` or `--prompt zsh` to match your shell's prompt. termrender invokes the actual shell to render the prompt line — path abbreviations, git branch detection, and color variables all work as they would in your real terminal:
+
+![Zsh prompt with Oh My Zsh](assets/demo-omz.png)
+
+```bash
+termrender exec --prompt zsh --theme auto --window-bar rings -o demo-omz.png -- echo "Hello, zsh!"
+```
 
 ## MCP server
 
