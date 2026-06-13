@@ -5,3 +5,5 @@ dist/
 .DS_Store
 opencode.json
 test/output/
+!assets/
+!assets/*.png
