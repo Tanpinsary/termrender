@@ -78,11 +78,11 @@ termrender uses fish shell's token-level algorithm to color commands, options, p
 | Pipe/operator | magenta | `\|`, `&&` |
 | Redirection | bold cyan | `>`, `>>` |
 
-![Syntax highlighting](assets/demo-syntax.png)
+![Syntax highlighting](assets/demo-highlight.png)
 
 ### 🎨 System-aware themes
 
-Without any `--theme` flag, termrender automatically picks dark or light based on your macOS system appearance. No manual switching needed.
+Without any `--theme` flag, termrender automatically picks dark or light based on your macOS system appearance. Here it shows a directory listing with your live iTerm2 palette:
 
 ![iTerm2 live theme](assets/demo-theme.png)
 
