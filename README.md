@@ -69,7 +69,14 @@ echo -e "\e[32mgreen\e[0m" | termrender render -o out.png
 
 ### 🐟 Fish syntax highlighting
 
-Commands typed after the prompt are highlighted using fish shell's real token-level algorithm — commands, options, parameters, pipes, and redirections get the same colors you'd see in an interactive fish session:
+termrender uses fish shell's token-level algorithm to color commands, options, pipes, and redirections exactly as fish would:
+
+| Token | Color | Example |
+|---|---|---|
+| Command | cyan | `git`, `echo` |
+| Option | cyan | `--oneline`, `-la` |
+| Pipe/operator | magenta | `\|`, `&&` |
+| Redirection | bold cyan | `>`, `>>` |
 
 ![Syntax highlighting](assets/demo-syntax.png)
 
