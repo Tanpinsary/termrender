@@ -109,7 +109,7 @@ Use `--prompt fish` or `--prompt zsh` to match your shell's prompt. termrender i
 ![Zsh prompt with Oh My Zsh](assets/demo-omz.png)
 
 ```bash
-termrender exec --prompt zsh --theme auto --window-bar rings -o demo-omz.png -- echo "Hello, zsh!"
+termrender exec --prompt zsh --theme auto --window-bar rings -o demo-omz.png -- git log --oneline -5
 ```
 
 ## MCP server

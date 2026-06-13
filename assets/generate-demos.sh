@@ -30,6 +30,6 @@ bun run bin/termrender.ts exec \
 echo "=== Generating demo-omz.png ==="
 bun run bin/termrender.ts exec \
   --prompt zsh --theme auto --window-bar rings -o assets/demo-omz.png \
-  -- echo "Hello, zsh!"
+  -- git log --oneline -5
 
 echo "All demo images generated!"

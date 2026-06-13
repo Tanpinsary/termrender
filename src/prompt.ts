@@ -44,7 +44,22 @@ function fishPrompt(cwd: string): string | null {
 
 function zshPrompt(cwd: string): string | null {
   if (!hasCommand("zsh")) return null
-  return run(["zsh", "-ic", `cd ${shellQuote(cwd)} 2>/dev/null; print -rP "$PROMPT"`], cwd)
+  const raw = run(
+    [
+      "zsh",
+      "-ic",
+      `cd ${shellQuote(cwd)} 2>/dev/null; ` +
+        `(( \${+functions[_omz_git_prompt_info]} )) && git_prompt_info() { _omz_git_prompt_info }; ` +
+        `print -rP "\$PS1"`,
+    ],
+    cwd,
+  )
+  if (!raw) return null
+  // Some OMZ themes (e.g., af-magic) prepend a full-width dashed separator
+  // line that's nearly invisible on dark backgrounds.  Strip the first line
+  // when the prompt spans multiple lines.
+  const nl = raw.indexOf("\n")
+  return nl !== -1 ? raw.slice(nl + 1) : raw
 }
 
 function shellQuote(s: string): string {
