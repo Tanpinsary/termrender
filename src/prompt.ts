@@ -11,12 +11,10 @@
  *  - zsh:  `zsh -ic 'print -rP "$PROMPT"'` (expands the interactive PROMPT)
  */
 
-export type PromptMode = "auto" | "omp" | "fish" | "zsh" | "none"
+export type PromptMode = "auto" | "fish" | "zsh" | "none"
 
 export interface PromptOptions {
   mode?: PromptMode
-  /** OMP theme path. Implies mode "omp" when set. Falls back to $POSH_THEME. */
-  ompConfig?: string
   /** Working directory the prompt should reflect (path segment, git status…). */
   cwd?: string
 }
@@ -34,14 +32,6 @@ function run(argv: string[], cwd?: string): string | null {
 
 function hasCommand(name: string): boolean {
   return Bun.which(name) !== null
-}
-
-function ompPrompt(config: string | undefined, cwd: string): string | null {
-  if (!hasCommand("oh-my-posh")) return null
-  const cfg = config ?? process.env.POSH_THEME
-  const argv = ["oh-my-posh", "print", "primary", "--pwd", cwd]
-  if (cfg) argv.push("--config", cfg)
-  return run(argv, cwd)
 }
 
 function fishPrompt(cwd: string): string | null {
@@ -93,16 +83,13 @@ export function detectTerminalShell(): string | null {
  * internal newlines — multi-line prompts — are preserved).
  */
 export function getPromptAnsi(options: PromptOptions = {}): string | null {
-  const mode = options.ompConfig ? "omp" : (options.mode ?? "auto")
+  const mode = options.mode ?? "auto"
   const cwd = options.cwd ?? process.cwd()
 
   let out: string | null = null
   switch (mode) {
     case "none":
       return null
-    case "omp":
-      out = ompPrompt(options.ompConfig, cwd)
-      break
     case "fish":
       out = fishPrompt(cwd)
       break
@@ -110,14 +97,9 @@ export function getPromptAnsi(options: PromptOptions = {}): string | null {
       out = zshPrompt(cwd)
       break
     case "auto": {
-      // OMP first when its env is present (it hooks whichever shell the user
-      // runs), then the terminal's real shell, then anything that answers.
-      if (process.env.POSH_THEME) out = ompPrompt(undefined, cwd)
-      if (!out) {
-        const shell = detectTerminalShell()
-        if (shell === "fish") out = fishPrompt(cwd)
-        else if (shell === "zsh") out = zshPrompt(cwd)
-      }
+      const shell = detectTerminalShell()
+      if (shell === "fish") out = fishPrompt(cwd)
+      else if (shell === "zsh") out = zshPrompt(cwd)
       if (!out) out = fishPrompt(cwd) ?? zshPrompt(cwd)
       break
     }

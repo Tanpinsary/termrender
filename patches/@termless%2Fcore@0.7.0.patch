@@ -1,5 +1,5 @@
 diff --git a/dist/svg-GiNzFr_X.mjs b/dist/svg-GiNzFr_X.mjs
-index 89002129e494916ea2aee0ec261ddd08c4da6a85..03591f5f034b36f39e4404ec925919b60f9bcdf0 100644
+index 89002129e494916ea2aee0ec261ddd08c4da6a85..5ff51d62ed2224e7b9e6bb5ed560d0355caaf04c 100644
 --- a/dist/svg-GiNzFr_X.mjs
 +++ b/dist/svg-GiNzFr_X.mjs
 @@ -319,7 +319,7 @@ function renderTextRows(lines, opts) {
@@ -11,3 +11,16 @@ index 89002129e494916ea2aee0ec261ddd08c4da6a85..03591f5f034b36f39e4404ec925919b6
  				textOpen = true;
  			}
  			parts.push(spanToTspan(span, cellWidth, themeFg));
+@@ -406,9 +406,9 @@ function renderWindowBar(barWidth, barHeight, style, borderRadius, themeBg, titl
+ 	const dotY = barHeight / 2;
+ 	const dotStartX = 20;
+ 	if (style === "rings") {
+-		parts.push(`<circle cx="${dotStartX}" cy="${dotY}" r="${dotRadius}" fill="none" stroke="#ff5f57" stroke-width="1.5"/>`);
+-		parts.push(`<circle cx="${dotStartX + 20}" cy="${dotY}" r="${dotRadius}" fill="none" stroke="#febc2e" stroke-width="1.5"/>`);
+-		parts.push(`<circle cx="${dotStartX + 40}" cy="${dotY}" r="${dotRadius}" fill="none" stroke="#28c840" stroke-width="1.5"/>`);
++		parts.push(`<circle cx="${dotStartX}" cy="${dotY}" r="${dotRadius}" fill="#ff5f57"/>`);
++		parts.push(`<circle cx="${dotStartX + 20}" cy="${dotY}" r="${dotRadius}" fill="#febc2e"/>`);
++		parts.push(`<circle cx="${dotStartX + 40}" cy="${dotY}" r="${dotRadius}" fill="#28c840"/>`);
+ 	} else {
+ 		parts.push(`<circle cx="${dotStartX}" cy="${dotY}" r="${dotRadius}" fill="#ff5f57"/>`);
+ 		parts.push(`<circle cx="${dotStartX + 20}" cy="${dotY}" r="${dotRadius}" fill="#febc2e"/>`);

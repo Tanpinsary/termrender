@@ -15,18 +15,17 @@
  *     content, so the image has no dead space at the bottom
  */
 
-import { createTerminal, screenshotPng, screenshotSvg } from "@termless/core"
+import { createTerminal, screenshotPng } from "@termless/core"
 import { createXtermBackend } from "@termless/xtermjs"
 import type { RenderOptions } from "./render"
-import { buildPngOptions, buildSvgOptions } from "./render"
-import { DEFAULT_THEME } from "./themes"
+import { buildHexPalette, buildPngOptions } from "./render"
+import { getSystemTheme } from "./themes"
 import { getPromptAnsi, type PromptMode } from "./prompt"
+import { highlight } from "./highlight"
 
 export interface ExecOptions extends RenderOptions {
-  /** Prompt source. Default "auto" (POSH_THEME → $SHELL → any). "none" disables. */
+  /** Prompt source. Default "auto" ($SHELL → any). "none" disables. */
   promptMode?: PromptMode
-  /** OMP theme path for prompt rendering (implies promptMode "omp"). */
-  promptConfig?: string
   /** Working directory for the command (and the prompt's path segment). */
   cwd?: string
   /** Max milliseconds to wait for the command to exit. Default 30000. */
@@ -69,7 +68,7 @@ export async function execAndRender(
   command: string[],
   outputPath: string,
   options: ExecOptions = {},
-): Promise<Uint8Array | string> {
+): Promise<Uint8Array> {
   const cols = options.cols ?? 80
   const autoRows = options.autoRows ?? true
   const rowsPinned = options.rows !== undefined
@@ -78,7 +77,6 @@ export async function execAndRender(
 
   const prompt = getPromptAnsi({
     mode: options.promptMode,
-    ompConfig: options.promptConfig,
     cwd,
   })
 
@@ -86,14 +84,14 @@ export async function execAndRender(
   // so the trim pass can replay the exact same content at the final size.
   const captured: Uint8Array[] = []
   const term = createTerminal({
-    backend: createXtermBackend(),
+    backend: createXtermBackend({ palette: buildHexPalette(options.theme ?? getSystemTheme()) }),
     cols,
     rows: captureRows,
     onAfterWrite: (data) => captured.push(data),
   })
 
-  // 1. Prompt + echoed command line, like the user typed it.
-  const commandLine = command.join(" ")
+  // 1. Prompt + echoed command line, with syntax highlighting on the command.
+  const commandLine = highlight(command)
   if (prompt) {
     term.feed(toCrlf(prompt) + commandLine + "\r\n")
   }
@@ -123,7 +121,7 @@ export async function execAndRender(
     const finalRows = Math.max(used, 3)
     if (finalRows < captureRows) {
       const trimTerm = createTerminal({
-        backend: createXtermBackend(),
+    backend: createXtermBackend({ palette: buildHexPalette(options.theme ?? getSystemTheme()) }),
         cols,
         rows: finalRows,
       })
@@ -133,18 +131,12 @@ export async function execAndRender(
     }
   }
 
-  const theme = options.theme ?? DEFAULT_THEME
-  const isPng = outputPath.endsWith(".png")
+  const theme = options.theme ?? getSystemTheme()
 
   try {
-    if (isPng) {
-      const png = await screenshotPng(renderTerm, buildPngOptions(theme, options))
-      await Bun.write(outputPath, png)
-      return png
-    }
-    const svg = screenshotSvg(renderTerm, buildSvgOptions(theme, options))
-    await Bun.write(outputPath, svg)
-    return svg
+    const png = await screenshotPng(renderTerm, buildPngOptions(theme, options))
+    await Bun.write(outputPath, png)
+    return png
   } finally {
     if (createdTrimTerm) await renderTerm.close()
     await term.close()

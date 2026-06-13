@@ -3,3 +3,5 @@ dist/
 *.png
 *.svg
 .DS_Store
+opencode.json
+test/output/

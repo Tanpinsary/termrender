@@ -44,15 +44,53 @@ function componentToHex(c: number): string {
   return Math.round(clamped * 255).toString(16).padStart(2, "0")
 }
 
+function srgbLinearize(v: number): number {
+  if (v <= 0.04045) return v / 12.92
+  return Math.pow((v + 0.055) / 1.055, 2.4)
+}
+
+function srgbEncode(v: number): number {
+  if (v <= 0.0031308) return v * 12.92
+  return 1.055 * Math.pow(v, 1.0 / 2.4) - 0.055
+}
+
+/**
+ * Convert Display P3 (D65) to sRGB — same gamma, different gamut.
+ * Matrices from CSS Color Level 4, rounded to 6 significant digits
+ * (higher precision is inaudible in 8-bit output).
+ */
+function p3ToSrgb(r: number, g: number, b: number): [number, number, number] {
+  const rl = srgbLinearize(r)
+  const gl = srgbLinearize(g)
+  const bl = srgbLinearize(b)
+
+  const x = 0.486571 * rl + 0.265668 * gl + 0.198217 * bl
+  const y = 0.228975 * rl + 0.691738 * gl + 0.079287 * bl
+  const z = 0.0 * rl + 0.045113 * gl + 1.043944 * bl
+
+  const rl2 = 3.24097 * x - 1.53738 * y - 0.498611 * z
+  const gl2 = -0.969244 * x + 1.87597 * y + 0.041555 * z
+  const bl2 = 0.055630 * x - 0.203977 * y + 1.05697 * z
+
+  return [srgbEncode(rl2), srgbEncode(gl2), srgbEncode(bl2)]
+}
+
 function colorAt(profileIdx: number, key: string): string | null {
   const json = plutil(`New Bookmarks.${profileIdx}.${key}`, "json")
   if (!json) return null
   try {
-    const d = JSON.parse(json) as Record<string, number>
-    const r = d["Red Component"]
-    const g = d["Green Component"]
-    const b = d["Blue Component"]
+    const d = JSON.parse(json) as Record<string, unknown>
+    const r = d["Red Component"] as number | undefined
+    const g = d["Green Component"] as number | undefined
+    const b = d["Blue Component"] as number | undefined
     if (typeof r !== "number" || typeof g !== "number" || typeof b !== "number") return null
+
+    const colorSpace = (d["Color Space"] as string | undefined) ?? "sRGB"
+    if (colorSpace === "Display P3" || colorSpace === "Calibrated") {
+      const [sr, sg, sb] = p3ToSrgb(r, g, b)
+      return `#${componentToHex(sr)}${componentToHex(sg)}${componentToHex(sb)}`
+    }
+
     return `#${componentToHex(r)}${componentToHex(g)}${componentToHex(b)}`
   } catch {
     return null

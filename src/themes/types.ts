@@ -59,6 +59,31 @@ export const DEFAULT_THEME: TermlessTheme = {
   },
 }
 
+export const DEFAULT_LIGHT_THEME: TermlessTheme = {
+  name: "default-light",
+  foreground: "#333333",
+  background: "#ffffff",
+  cursor: "#333333",
+  palette: {
+    0: "#333333",
+    1: "#cd3131",
+    2: "#0dbc79",
+    3: "#e5e510",
+    4: "#2472c8",
+    5: "#bc3fbc",
+    6: "#11a8cd",
+    7: "#e5e5e5",
+    8: "#666666",
+    9: "#f14c4c",
+    10: "#23d18b",
+    11: "#f5f543",
+    12: "#3b8eea",
+    13: "#d670d6",
+    14: "#29b8db",
+    15: "#ffffff",
+  },
+}
+
 export const ANSI_FALLBACK_PALETTE: Record<number, string> = {
   0: "#000000",
   1: "#800000",

@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 import { Command } from "commander"
-import { loadTheme } from "../src/themes/index"
+import { loadTheme, getSystemTheme } from "../src/themes/index"
 import { renderCast, renderStdin } from "../src/render"
 import type { RenderOptions } from "../src/render"
 import { execAndRender } from "../src/exec"
@@ -26,8 +26,8 @@ interface ResolvedTheme {
 /**
  * Resolve --theme:
  *  - "auto"   → live iTerm2 profile (colors + font) from preferences
- *  - a path   → OMP / OMZ / .itermcolors file (colors only)
- *  - omitted  → default dark theme
+ *  - a path   → .itermcolors file (colors only)
+ *  - omitted  → system theme (dark/light follows macOS appearance)
  */
 async function resolveTheme(opts: Record<string, string>): Promise<ResolvedTheme> {
   if (opts.theme === "auto") {
@@ -52,6 +52,10 @@ async function resolveTheme(opts: Record<string, string>): Promise<ResolvedTheme
     return { theme: await loadTheme(raw, opts.theme, (opts.themeType as ThemeFormat) ?? "auto") }
   }
 
+  if (!opts.theme) {
+    return { theme: getSystemTheme() }
+  }
+
   return { theme: DEFAULT_THEME }
 }
 
@@ -67,7 +71,7 @@ function buildRenderOpts(
     fontFamily: opts.fontFamily ?? resolved.fontFamily,
     fontSize: opts.fontSize ? parseInt(opts.fontSize, 10) : resolved.fontSize,
     padding: opts.padding ? parseInt(opts.padding, 10) : undefined,
-    borderRadius: opts.borderRadius ? parseInt(opts.borderRadius, 10) : undefined,
+    borderRadius: opts.borderRadius ? parseInt(opts.borderRadius, 10) : 8,
     windowBar: opts.windowBar as "none" | "rings" | "colorful" | undefined,
     margin: opts.margin ? parseInt(opts.margin, 10) : undefined,
     marginFill: opts.marginFill,
@@ -77,16 +81,16 @@ function buildRenderOpts(
 /** Options shared by `render` and `exec`. */
 function withCommonOptions(cmd: Command): Command {
   return cmd
-    .option("-o, --output <path>", "Output file path (.png or .svg)", "output.png")
-    .option("--theme <path|auto>", "Theme file (OMP/OMZ/iTerm2 colors), or 'auto' for your live iTerm2 profile")
-    .option("--theme-type <type>", "Force theme format: omp, omz, iterm2")
+    .option("-o, --output <path>", "Output file path (.png)", "output.png")
+    .option("--theme <path|auto>", "Theme file (iTerm2 colors), or 'auto' for your live iTerm2 profile")
+    .option("--theme-type <type>", "Force theme format: iterm2")
     .option("--profile <name>", "iTerm2 profile name for --theme auto (default: the default profile)")
     .option("--cols <n>", "Terminal columns (default: cast header width, or 80)")
     .option("--rows <n>", "Terminal rows (default: cast header height, or 24)")
     .option("--font-family <family>", "CSS font family for rendering")
     .option("--font-size <n>", "Font size in px")
-    .option("--padding <n>", "Padding around terminal content", "0")
-    .option("--border-radius <n>", "Border radius for terminal frame", "0")
+    .option("--padding <n>", "Padding around terminal content", "12")
+    .option("--border-radius <n>", "Border radius for terminal frame (default: 8)", "8")
     .option("--window-bar <style>", "Window bar style: none, rings, colorful")
     .option("--margin <n>", "Outer image margin", "0")
     .option("--margin-fill <color>", "Margin fill color (hex)")
@@ -133,8 +137,7 @@ withCommonOptions(
     )
     .argument("<command...>", "Command to execute (prefix with -- to stop option parsing)"),
 )
-  .option("--prompt <mode>", "Prompt source: auto, omp, fish, zsh, none", "auto")
-  .option("--prompt-config <path>", "Oh My Posh theme for prompt rendering (implies --prompt omp)")
+  .option("--prompt <mode>", "Prompt source: auto, fish, zsh, none", "auto")
   .option("--cwd <dir>", "Working directory for the command and prompt")
   .option("--timeout <ms>", "Max time to wait for the command to exit", "30000")
   .option("--no-auto-rows", "Keep full terminal height instead of trimming empty rows")
@@ -147,7 +150,6 @@ withCommonOptions(
       await execAndRender(command, opts.output!, {
         ...renderOpts,
         promptMode: opts.prompt as PromptMode,
-        promptConfig: opts.promptConfig,
         cwd: opts.cwd,
         timeout: opts.timeout ? parseInt(opts.timeout, 10) : undefined,
         autoRows: (opts as Record<string, unknown>).autoRows as boolean | undefined,
@@ -169,11 +171,7 @@ program
     console.log("  --theme auto          — your live iTerm2 profile (colors + font), macOS")
     console.log("  --theme <file>        — color schemes from:")
     console.log("      iTerm2 .itermcolors   exported color preset (full 16-color palette)")
-    console.log("      OMP .json/.yaml/.toml colors only — OMP themes define prompts, not palettes;")
-    console.log("                            use `exec --prompt omp --prompt-config <file>` to")
-    console.log("                            replicate the prompt itself")
-    console.log("      OMZ .zsh-theme        best-effort hex color extraction")
-    console.log("  (omitted)             — built-in default-dark")
+    console.log("  (omitted)             — system theme (dark/light follows macOS appearance)")
   })
 
 program.parse()

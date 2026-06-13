@@ -23,7 +23,8 @@
     "@resvg/resvg-js": "^2.6.2"
   },
   "devDependencies": {
-    "@types/bun": "^1.2.9"
+    "@types/bun": "^1.2.9",
+    "typescript": "^6.0.3"
   },
   "patchedDependencies": {
     "@termless/core@0.7.0": "patches/@termless%2Fcore@0.7.0.patch"
